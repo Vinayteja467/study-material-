@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduShare - Teacher Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.12) 0, transparent 50%), 
+                        radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.12) 0, transparent 50%), 
+                        #0b0f19;
+            min-height: 100vh;
+            color: #f8fafc;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .user-tag {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #c7d2fe;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            margin-left: 20px;
+        }
+
+        .logout-btn:hover {
+            color: #ef4444;
+        }
+
+        /* Layout */
+        .dashboard-container {
+            display: flex;
+            flex: 1;
+            min-height: calc(100vh - 73px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 23, 42, 0.4);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 40px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .sidebar-section h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            color: #f8fafc;
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .sidebar-menu li a.active {
+            border-left: 3px solid #6366f1;
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .welcome-header {
+            margin-bottom: 40px;
+        }
+
+        .welcome-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 8px;
+        }
+
+        .welcome-header p {
+            color: #94a3b8;
+            font-size: 16px;
+        }
+
+        /* Stats Row */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(17, 24, 39, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: #6366f1;
+            filter: blur(50px);
+            opacity: 0.1;
+            top: -20px;
+            right: -20px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        /* Workspace Grid */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1.8fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .workspace-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards styling */
+        .workspace-card {
+            background: rgba(17, 24, 39, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .workspace-card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f8fafc;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .workspace-card h2::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            font-size: 15px;
+            color: #f8fafc;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            background: rgba(30, 41, 59, 0.7);
+            border-color: #818cf8;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        /* File Upload Styling */
+        .file-upload-wrapper {
+            position: relative;
+            background: rgba(30, 41, 59, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-wrapper:hover {
+            border-color: #818cf8;
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .upload-text strong {
+            color: #818cf8;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+            filter: brightness(1.05);
+        }
+
+        /* Success Alert */
+        .alert-success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #a7f3d0;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+        }
+
+        /* PDF Grid Table */
+        .pdf-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .pdf-item {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .pdf-item:hover {
+            background: rgba(30, 41, 59, 0.5);
+            border-color: rgba(99, 102, 241, 0.2);
+            transform: translateX(4px);
+        }
+
+        .pdf-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-width: 70%;
+        }
+
+        .pdf-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+
+        .pdf-desc {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        .pdf-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn.view {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .action-btn.view:hover {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">EduShare</div>
+        <div style="display: flex; align-items: center;">
+            <span class="user-tag">Teacher Mode</span>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>Workspace</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="#" class="active">Upload Portal</a></li>
+                    <li><a href="{% url 'uploaded' %}">All Study Materials</a></li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h3>Settings</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="#">Account Profile</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="welcome-header">
+                <h1>Teacher Control Center</h1>
+                <p>Upload new PDF files and make them immediately searchable by your students via Interactive AI.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Uploaded PDFs</div>
+                    <div class="stat-value">{{ pdfs|length }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Vector Storage Status</div>
+                    <div class="stat-value" style="color: #10b981;">ACTIVE</div>
+                </div>
+            </div>
+
+            <div class="workspace-grid">
+                <!-- Upload form card -->
+                <section class="workspace-card" id="upload">
+                    <h2>Upload New Document</h2>
+                    <form action="{% url 'dashboard' %}" id="uploadForm" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="title">Document Title</label>
+                            <input type="text" id="title" name="title" placeholder="e.g. Advanced Data Structures" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Brief Description</label>
+                            <textarea id="description" name="description" rows="4" placeholder="Describe the topics covered in this PDF..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Select PDF File</label>
+                            <div class="file-upload-wrapper">
+                                <span class="upload-icon">📂</span>
+                                <div class="upload-text">
+                                    <strong>Click to browse</strong> or drag & drop<br>
+                                    <span style="font-size: 12px; color: #64748b;">PDF files only</span>
+                                </div>
+                                <input type="file" id="file" name="pdf" accept=".pdf" required onchange="updateFileName(this)">
+                            </div>
+                            <div id="file-name-display" style="font-size: 13px; color: #818cf8; margin-top: 8px; font-weight: 500; text-align: center;"></div>
+                        </div>
+                        <button type="submit" class="btn-submit" onclick="showSuccess()">Upload & Create Embeddings</button>
+                    </form>
+                    <div id="successMessage" class="alert-success">
+                        🚀 Upload successful! Generating vector embeddings...
+                    </div>
+                </section>
+
+                <!-- Document List Card -->
+                <section class="workspace-card">
+                    <h2>Your Uploaded Materials</h2>
+                    <div class="pdf-list">
+                        {% for pdf in pdfs %}
+                            <div class="pdf-item">
+                                <div class="pdf-info">
+                                    <div class="pdf-title">{{ pdf.title }}</div>
+                                    <div class="pdf-desc">{{ pdf.description }}</div>
+                                    <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Uploaded on: {{ pdf.uploaded_at|date:"M d, Y H:i" }}</div>
+                                </div>
+                                <div class="pdf-actions">
+                                    <a href="{% url 'view_pdf' pdf.id %}" class="action-btn view">AI Study Assistant</a>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="no-data">
+                                <p>You haven't uploaded any study materials yet. Use the upload portal on the left to add a PDF!</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function updateFileName(input) {
+            var display = document.getElementById("file-name-display");
+            if (input.files && input.files[0]) {
+                display.innerText = "Selected file: " + input.files[0].name;
+            } else {
+                display.innerText = "";
+            }
+        }
+
+        function showSuccess() {
+            var title = document.getElementById("title").value;
+            var desc = document.getElementById("description").value;
+            var file = document.getElementById("file").value;
+
+            if (title && desc && file) {
+                var alertBox = document.getElementById("successMessage");
+                alertBox.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>
